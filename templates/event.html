@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ event.titel }}</h1>
+
+        <div class="detail-box">
+            <div class="detail-datum">📅 Datum: {{ event.datum }}</div>
+            <p><strong>Beschreibung:</strong></p>
+            <p>{{ event.beschreibung }}</p>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('home') }}" class="btn" style="background-color: #95a5a6;">Zurück zur Übersicht</a>
+
+            <!-- Das Formular für den Löschbefehl -->
+            <form action="{{ url_for('delete_event', event_id=event.id) }}" method="POST">
+                <button type="submit" class="btn btn-danger">Event löschen</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
