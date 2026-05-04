@@ -180,3 +180,20 @@ textarea {
     font-weight: bold;
     margin-bottom: 10px;
 }
+
+/* --- Flash Messages --- */
+.flash-message {
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+.flash-message.success {
+    background-color: #2ecc71;
+    color: white;
+}
+.flash-message.error {
+    background-color: #e74c3c;
+    color: white;
+}

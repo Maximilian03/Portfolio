@@ -9,7 +9,14 @@
 <body>
     <div class="container">
         <h1>Event Kalender</h1>
-
+            <!-- Flash Messages Bereich -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
         <!-- Buttons zum Umschalten -->
         <div class="view-toggle">
             <button id="btn-list" class="active" onclick="switchView('list')">Listenansicht</button>
