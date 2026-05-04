@@ -19,12 +19,12 @@
             {% endwith %}
         <!-- Buttons zum Umschalten -->
         <div class="view-toggle">
-            <button id="btn-list" class="active" onclick="switchView('list')">Listenansicht</button>
-            <button id="btn-cal" onclick="switchView('calendar')">Kalenderansicht</button>
+            <button id="btn-list" onclick="switchView('list')">Listenansicht</button>
+            <button id="btn-cal" class="active" onclick="switchView('calendar')">Kalenderansicht</button>
         </div>
 
         <!-- ================= LISTENANSICHT ================= -->
-        <div id="view-list">
+        <div id="view-list" style="display: none;">
             <table>
                 <thead>
                     <tr>
@@ -50,7 +50,7 @@
         </div>
 
         <!-- ================= KALENDERANSICHT ================= -->
-        <div id="view-calendar" style="display: none;">
+        <div id="view-calendar">
 
             <!-- Die Kalender Navigation -->
             <div class="calendar-nav">
@@ -149,6 +149,7 @@
                 `;
             }
         }
+        renderCalendar();
     </script>
 </body>
 </html>

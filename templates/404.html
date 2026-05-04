@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Seite nicht gefunden</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container" style="text-align: center; margin-top: 100px;">
+        <h1>Oops! 🕵️‍♂️</h1>
+        <h2>Fehler 404: Seite nicht gefunden</h2>
+        <p>Das gesuchte Event existiert leider nicht oder wurde bereits gelöscht.</p>
+        <br>
+        <a href="{{ url_for('home') }}" class="btn">Zurück zur Startseite</a>
+    </div>
+</body>
+</html>

@@ -95,7 +95,10 @@ def delete_event(event_id):
     # NEU: Erfolgsmeldung nach dem Löschen
     flash('Das Event wurde gelöscht.', 'success')
     return redirect(url_for('home'))
-
+# Eigene Fehlerseite für den Fehler 404
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 # =================================
 # App start
