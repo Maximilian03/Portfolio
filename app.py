@@ -1,8 +1,10 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
-
-from flask import Flask, render_template, redirect, url_for, request
+from datetime import datetime
 
 app = Flask(__name__)
+# Ein geheimer Schlüssel für die Flash Messages
+app.secret_key = 'ein_sehr_geheimer_schluessel_fuer_mein_projekt'
 
 
 # Hilfsfunktion, um die Datenbankverbindung aufzubauen
@@ -31,24 +33,42 @@ def home():
 
 @app.route('/create', methods=('GET', 'POST'))
 def create_event():
-    # Wenn der Nutzer auf "Event speichern" klickt, senden wir einen POST-Request
     if request.method == 'POST':
-        # Wir greifen die Daten aus den Eingabefeldern ab
-        titel = request.form['titel']
+        # .strip() entfernt versehentliche Leerzeichen am Anfang und Ende
+        titel = request.form['titel'].strip()
         datum = request.form['datum']
-        beschreibung = request.form['beschreibung']
+        beschreibung = request.form['beschreibung'].strip()
 
-        # Wir öffnen die Datenbank und fügen die neuen Daten ein
+        # Die Validierung (Pflichtfelder und Vergangenheit)
+        if not titel or not datum:
+            flash('Titel und Datum sind Pflichtfelder!', 'error')
+            return redirect(url_for('create_event'))
+
+        # Wir wandeln den Text aus dem Formular in ein echtes Datum um
+        try:
+            eingabe_datum = datetime.strptime(datum, '%Y-%m-%d').date()
+            heute = datetime.today().date()
+
+            # Jetzt vergleichen wir die beiden Daten
+            if eingabe_datum < heute:
+                flash('Das Datum darf nicht in der Vergangenheit liegen!', 'error')
+                return redirect(url_for('create_event'))
+
+        except ValueError:
+            # Falls jemand versucht, das HTML zu manipulieren und ein falsches Format schickt
+            flash('Ungültiges Datumsformat!', 'error')
+            return redirect(url_for('create_event'))
+
         conn = get_db_connection()
         conn.execute('INSERT INTO events (titel, datum, beschreibung) VALUES (?, ?, ?)',
                      (titel, datum, beschreibung))
         conn.commit()
         conn.close()
 
-        # Nach dem Speichern leiten wir direkt zurück zur Startseite
+        # Erfolgsmeldung nach dem Speichern
+        flash('Event erfolgreich erstellt!', 'success')
         return redirect(url_for('home'))
 
-    # Wenn die Seite ganz normal aufgerufen wird (GET-Request), zeige das leere Formular
     return render_template('add-event.html')
 
 
@@ -68,11 +88,14 @@ def event_detail(event_id):
 @app.route('/event/<int:event_id>/delete', methods=['POST'])
 def delete_event(event_id):
     conn = get_db_connection()
-    # Das Event aus der Datenbank löschen
     conn.execute('DELETE FROM events WHERE id = ?', (event_id,))
     conn.commit()
     conn.close()
+
+    # NEU: Erfolgsmeldung nach dem Löschen
+    flash('Das Event wurde gelöscht.', 'success')
     return redirect(url_for('home'))
+
 
 # =================================
 # App start
