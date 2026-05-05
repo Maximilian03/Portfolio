@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eventkalender</title>
+    <!-- Zentrales CSS für das Layout von Liste und Kalender-Grid -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Event Kalender</h1>
-            <!-- Flash Messages Bereich -->
+
+            <!-- Anzeige von Feedback-Nachrichten (z.B. nach Löschen oder Erstellen eines Events) -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
                 {% for category, message in messages %}
@@ -17,13 +19,15 @@
                 {% endfor %}
               {% endif %}
             {% endwith %}
-        <!-- Buttons zum Umschalten -->
+
+        <!-- Navigation zur Steuerung der Ansicht (DOM-Manipulation via JS) -->
         <div class="view-toggle">
             <button id="btn-list" onclick="switchView('list')">Listenansicht</button>
             <button id="btn-cal" class="active" onclick="switchView('calendar')">Kalenderansicht</button>
         </div>
 
         <!-- ================= LISTENANSICHT ================= -->
+        <!-- Standardmäßig ausgeblendet, wird über switchView('list') aktiviert -->
         <div id="view-list" style="display: none;">
             <table>
                 <thead>
@@ -34,13 +38,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Iteration über die vom Flask-Backend übergebene Liste 'events' -->
                     {% for event in events %}
                     <tr>
                         <td>{{ event.datum }}</td>
+                        <!-- Link zur Detailseite unter Verwendung der dynamischen event.id -->
                         <td><a href="{{ url_for('event_detail', event_id=event.id) }}" style="text-decoration: none; color: #3498db;"><strong>{{ event.titel }}</strong></a></td>
                         <td>{{ event.beschreibung }}</td>
                     </tr>
                     {% else %}
+                    <!-- Fallback, falls die Datenbankabfrage keine Ergebnisse liefert -->
                     <tr>
                         <td colspan="3">Aktuell sind keine Events geplant.</td>
                     </tr>
@@ -51,32 +58,38 @@
 
         <!-- ================= KALENDERANSICHT ================= -->
         <div id="view-calendar">
-
-            <!-- Die Kalender Navigation -->
+            <!-- Navigationselemente zur Steuerung des Monatsspeichers im JavaScript -->
             <div class="calendar-nav">
                 <button onclick="changeMonth(-1)">&#10094; Zurück</button>
                 <h3 class="calendar-header" id="cal-month-year"></h3>
                 <button onclick="changeMonth(1)">Vor &#10095;</button>
             </div>
 
-            <div class="calendar-grid" id="cal-grid">
-                <!-- Wird durch JavaScript gefüllt -->
-            </div>
+            <!-- Das Kalender-Grid wird dynamisch durch die Funktion renderCalendar() generiert -->
+            <div class="calendar-grid" id="cal-grid"></div>
         </div>
 
         <br>
         <a href="{{ url_for('create_event') }}" class="btn">Neues Event erstellen</a>
     </div>
 
-    <!-- JavaScript für den Kalender und das Umschalten -->
+    <!-- JavaScript für die dynamische Kalender-Logik -->
     <script>
+        /*
+           Datenübergabe: Das Jinja2-Objekt 'events' wird in ein valides JSON-Format umgewandelt,
+           damit JavaScript direkt auf die Datenbankinhalte zugreifen kann.
+        */
         const events = {{ events | tojson }};
 
-        // NEU: Wir speichern den aktuellen Monat und das Jahr global
+        // Globaler Status für die aktuelle Kalender-Ansicht
         let displayDate = new Date();
         let currentMonth = displayDate.getMonth();
         let currentYear = displayDate.getFullYear();
 
+        /**
+         * Schaltet zwischen Listen- und Kalenderdarstellung um.
+         * Verwendet einfache DOM-Manipulation zur Sichtbarkeitssteuerung.
+         */
         function switchView(view) {
             if (view === 'list') {
                 document.getElementById('view-list').style.display = 'block';
@@ -92,48 +105,58 @@
             }
         }
 
-        // Funktion zum Blättern der Monate
+        /**
+         * Aktualisiert den Monatsspeicher und triggert das Neuzeichnen des Kalenders.
+         * Behandelt den Jahreswechsel (Überlauf vom Dezember/Januar).
+         */
         function changeMonth(step) {
             currentMonth += step;
-            // Wenn wir über den Dezember hinausgehen
             if (currentMonth > 11) {
                 currentMonth = 0;
                 currentYear++;
-            }
-            // Wenn wir vor den Januar gehen
-            else if (currentMonth < 0) {
+            } else if (currentMonth < 0) {
                 currentMonth = 11;
                 currentYear--;
             }
             renderCalendar();
         }
 
+        /**
+         * Kernfunktion: Erzeugt das HTML-Grid für den gewählten Monat.
+         * Berechnet den Wochentag des ersten Monatstags und die Anzahl der Tage.
+         */
         function renderCalendar() {
             const grid = document.getElementById('cal-grid');
             const monthYearLabel = document.getElementById('cal-month-year');
 
+            // Header für Wochentage (statisch)
             const dayNames = `<div class="calendar-day-name">Mo</div><div class="calendar-day-name">Di</div><div class="calendar-day-name">Mi</div><div class="calendar-day-name">Do</div><div class="calendar-day-name">Fr</div><div class="calendar-day-name">Sa</div><div class="calendar-day-name">So</div>`;
             grid.innerHTML = dayNames;
 
             const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-
-            // hier werden die Variablen currentMonth und currentYear genutzt
             monthYearLabel.innerText = monthNames[currentMonth] + " " + currentYear;
 
+            // Berechnung des ersten Wochentags (angepasst auf Start Montag = 0)
             let firstDay = new Date(currentYear, currentMonth, 1).getDay();
             firstDay = firstDay === 0 ? 6 : firstDay - 1;
 
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
+            // Platzhalter für Tage des Vormonats einfügen
             for (let i = 0; i < firstDay; i++) {
                 grid.innerHTML += `<div class="calendar-day empty"></div>`;
             }
 
+            // Tage des aktuellen Monats generieren
             for (let i = 1; i <= daysInMonth; i++) {
                 const dayString = i < 10 ? '0' + i : i;
                 const monthString = (currentMonth + 1) < 10 ? '0' + (currentMonth + 1) : (currentMonth + 1);
                 const dateString = `${currentYear}-${monthString}-${dayString}`;
 
+                /*
+                   Event-Zuordnung: Prüft für jeden Tag, ob in den geladenen Event-Daten
+                   ein passender Eintrag für das berechnete Datum existiert.
+                */
                 let eventHtml = '';
                 events.forEach(event => {
                     if(event.datum === dateString) {
@@ -149,6 +172,7 @@
                 `;
             }
         }
+        // Initialer Aufruf beim Laden der Seite
         renderCalendar();
     </script>
 </body>

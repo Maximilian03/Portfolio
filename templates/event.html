@@ -4,24 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Details</title>
+    <!-- Einbindung des zentralen Stylesheets für ein konsistentes Look-and-Feel -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="container">
+        <!--
+            Dynamische Überschrift: Zeigt den Titel des spezifischen Events an.
+            Die Daten stammen aus dem 'event'-Objekt, das vom Flask-Controller übergeben wurde.
+        -->
         <h1>{{ event.titel }}</h1>
 
         <div class="detail-box">
+            <!-- Anzeige des Datums; idealerweise im ISO-Format oder lokalisiert -->
             <div class="detail-datum">📅 Datum: {{ event.datum }}</div>
             <p><strong>Beschreibung:</strong></p>
+            <!--
+                Inhaltsausgabe: Hier wird die im DatabaseManager gespeicherte
+                Beschreibung des Termins gerendert.
+            -->
             <p>{{ event.beschreibung }}</p>
         </div>
 
         <div style="display: flex; gap: 10px;">
+            <!-- Navigations-Link zur Rückkehr auf die Hauptübersicht -->
             <a href="{{ url_for('home') }}" class="btn" style="background-color: #95a5a6;">Zurück zur Übersicht</a>
 
-            <!-- Das Formular für den Löschbefehl -->
+            <!--
+                Lösch-Funktion:
+                WICHTIG: Die Löschung erfolgt über ein POST-Formular statt eines einfachen Links.
+                Dies verhindert ein versehentliches Löschen durch Suchmaschinen-Crawler
+                und erhöht die Sicherheit der Anwendung.
+            -->
             <form action="{{ url_for('delete_event', event_id=event.id) }}" method="POST">
-                <button type="submit" class="btn btn-danger">Event löschen</button>
+                <!--
+                    'event_id' wird als URL-Parameter übergeben, damit der Controller
+                    weiß, welcher Datensatz in der SQLite-Datenbank entfernt werden soll.
+                -->
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Soll dieses Event wirklich gelöscht werden?');">Event löschen</button>
             </form>
         </div>
     </div>

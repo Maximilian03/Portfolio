@@ -2,15 +2,32 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <!-- Verhindert Darstellungsprobleme bei Umlauten und Sonderzeichen -->
     <title>Seite nicht gefunden</title>
+    <!-- Konsistente Einbindung des Stylesheets für ein einheitliches Design-System -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
+    <!--
+        Zentrale Container-Klasse für die Ausrichtung.
+        Inline-Styles werden hier für eine schnelle Positionierung der Fehlermeldung genutzt.
+    -->
     <div class="container" style="text-align: center; margin-top: 100px;">
         <h1>Oops! 🕵️‍♂️</h1>
+
+        <!--
+            Der HTTP-Statuscode 404 signalisiert dem Nutzer (und Suchmaschinen),
+            dass die angeforderte Ressource nicht verfügbar ist.
+        -->
         <h2>Fehler 404: Seite nicht gefunden</h2>
+
         <p>Das gesuchte Event existiert leider nicht oder wurde bereits gelöscht.</p>
         <br>
+
+        <!--
+            Sicherstellung der Navigation: Der Nutzer wird nicht in einer Sackgasse gelassen,
+            sondern kann über den Button direkt zum Hauptkontext der App zurückkehren.
+        -->
         <a href="{{ url_for('home') }}" class="btn">Zurück zur Startseite</a>
     </div>
 </body>
