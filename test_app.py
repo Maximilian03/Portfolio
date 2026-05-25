@@ -3,32 +3,38 @@ from app import app
 
 
 class EventkalenderTests(unittest.TestCase):
+    """Test Suite für die Validierung der Kernfunktionen des Eventkalenders."""
 
     def setUp(self):
-        # Es wird ein virtuellen Client, der Nutzerverhalten simuliert erstellt.
+        """
+        Initialisiert die Testumgebung vor jedem einzelnen Testlauf.
+        Erstellt einen virtuellen Test Client (Mocking), um HTTP Requests zu simulieren.
+        """
         self.app = app.test_client()
         self.app.testing = True
 
     def test_startseite_erreichbar(self):
-        # Der virtuelle Client ruft die Hauptseite auf
+        """Testet, ob der Controller für die Startseite korrekt antwortet."""
         antwort = self.app.get('/')
-        print("Test 1/3")
 
-        # Wir erwarten den Statuscode 200 (Das bedeutet im Web: Alles OK)
+        # HTTP 200 (OK) verifiziert die erfolgreiche Routenauflösung und das Rendering
         self.assertEqual(antwort.status_code, 200)
 
     def test_erstellen_seite_erreichbar(self):
-        # Testet, ob das Formular fehlerfrei geladen wird
+        """Prüft die Erreichbarkeit des Eingabeformulars für neue Events."""
         antwort = self.app.get('/create')
+
         self.assertEqual(antwort.status_code, 200)
-        print("Test 2/3")
 
     def test_event_nicht_gefunden_404(self):
-        # Testet unsere Fehlerbehandlung: Was passiert bei einer falschen Event-ID?
+        """
+        Testet die Fehlerbehandlung (Exception Handling) der Anwendung.
+        Der Aufruf eines nicht existierenden Geschäftsobjekts muss zwingend HTTP 404 liefern.
+        """
         antwort = self.app.get('/event/9999')
-        # Wir erwarten hier explizit den Fehler 404 (Not Found)
+
+        # HTTP 404 (Not Found) bestätigt die korrekte Fehlerkapselung
         self.assertEqual(antwort.status_code, 404)
-        print("Test 3/3")
 
 
 if __name__ == '__main__':

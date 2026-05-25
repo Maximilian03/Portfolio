@@ -197,3 +197,27 @@ textarea {
     background-color: #e74c3c;
     color: white;
 }
+
+.error-container {
+    text-align: center;
+    margin-top: 100px;
+}
+
+/* Layout für nebeneinanderliegende Buttons in der Detailansicht */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Spezifisches Styling für destruktive Aktionen (Löschen) */
+.btn-danger {
+    background-color: #e74c3c;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+btn-secondary {
+    background-color: #95a5a6;
+}
