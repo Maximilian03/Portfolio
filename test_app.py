@@ -36,6 +36,38 @@ class EventkalenderTests(unittest.TestCase):
         # HTTP 404 (Not Found) bestätigt die korrekte Fehlerkapselung
         self.assertEqual(antwort.status_code, 404)
 
+    def test_datum_vergangenheit_validierung(self):
+        """
+        Prüft die Validierungslogik für historische Daten.
+        Ein Datum in der Vergangenheit muss von der Backend-Validierung abgewiesen werden.
+        """
+        import datetime
+        gestern = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+
+        antwort = self.app.post('/create', data={
+            'title': 'Test Event Vergangenheit',
+            'date': gestern,
+            'description': 'Dieses Event darf nicht gespeichert werden'
+        })
+
+        # Prüft, ob das Backend den Request abweist (oft HTTP 400 Bad Request
+        # oder ein Redirect HTTP 302 zurück zum Formular)
+        self.assertNotEqual(antwort.status_code, 200)
+
+    def test_fehlende_pflichtfelder_validierung(self):
+        """
+        Prüft die Validierungslogik bei unvollständigen Eingaben.
+        Ein fehlender Titel (Pflichtfeld) muss abgewiesen werden.
+        """
+        antwort = self.app.post('/create', data={
+            'title': '',  # Pflichtfeld absichtlich leer
+            'date': '2027-01-01',
+            'description': 'Test ohne Pflichtfeld'
+        })
+
+        # Darf nicht erfolgreich verarbeitet werden
+        self.assertNotEqual(antwort.status_code, 200)
+
 
 if __name__ == '__main__':
     unittest.main()
